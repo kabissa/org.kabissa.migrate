@@ -6,16 +6,16 @@
 return array (
   0 =>
     array (
-      'name' => 'Cron:Migrate.Groups',
+      'name' => 'Cron:Migrate.CustomGroups',
       'entity' => 'Job',
       'params' =>
         array (
           'version' => 3,
-          'name' => 'Migrate Groups',
-          'description' => 'Kabissa Migrate Groups (one time migration job)',
+          'name' => 'Migrate CustomGroups',
+          'description' => 'Kabissa Migrate CustomGroups (one time migration job)',
           'run_frequency' => 'Daily',
           'api_entity' => 'Migrate',
-          'api_action' => 'Groups',
+          'api_action' => 'CustomGroups',
           'is_active' => 0
         ),
     ),

@@ -55,5 +55,6 @@ function _createTag($daoTag, &$tagParents) {
     $params['parent_id'] = $tagParents[$params['parent_id']];
   }
   $newTag = civicrm_api3('Tag', 'Create', $params);
+  CRM_Migrate_Utils::addMigrateKey($daoTag->id, 'Tag', $newTag['id']);
   $tagParents[$daoTag->id] = $newTag['id'];
 }

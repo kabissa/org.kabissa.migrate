@@ -43,5 +43,6 @@ function _createGroup($daoGroup) {
       $params[$fieldName] = $daoGroup->$fieldName;
     }
   }
-  civicrm_api3('Group', 'Create', $params);
+  $newGroup = civicrm_api3('Group', 'Create', $params);
+  CRM_Migrate_Utils::createMigrateKey($daoGroup->id, 'Group', $newGroup['id']);
 }

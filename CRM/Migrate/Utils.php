@@ -57,9 +57,35 @@ class CRM_Migrate_Utils {
       $whereClauses[] = 'original_id = %3';
       $selectParams[3] = array($params['original_id'], 'Integer');
     }
-    $query = 'SELECT * FROM migrate_keys '.implode(' AND', $whereClauses);
+    $result = array();
+    $query = 'SELECT * FROM migrate_keys WHERE '.implode(' AND ', $whereClauses);
     $dao = CRM_Core_DAO::executeQuery($query, $selectParams);
-    CRM_Core_DAO::storeValues($dao, $result);
+    if ($dao->fetch()) {
+      $result['id'] = $dao->id;
+      $result['entity'] = $dao->entity;
+      $result['original_id'] = $dao->original_id;
+      $result['entity_id'] = $dao->entity_id;
+    }
     return $result;
+  }
+
+  /**
+   * Method to check if old contact_id has already been migrated
+   *
+   * @param int $oldId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function oldIdInMigrateKeys($oldId) {
+    $query = 'SELECT COUNT(*) As keyCount FROM migrate_keys WHERE original_id = %1';
+    $params = array(1 => array($oldId, 'Integer'));
+    $dao = CRM_Core_DAO::executeQuery($query, $params);
+    if ($dao->fetch()) {
+      if ($dao->keyCount > 0) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 }

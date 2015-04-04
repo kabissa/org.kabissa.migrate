@@ -29,6 +29,7 @@ function civicrm_api3_migrate_orgdata($params) {
  * @param object $daoOrg
  */
 function _createOrganization($daoOrg) {
+
   $migrateKeyParams = array(
     'entity' => 'Organization',
     'original_id' => $daoOrg->entity_id);
@@ -136,7 +137,7 @@ function _createOrganization($daoOrg) {
       $insertParams[$counter] = array($daoOrg->global_giving_organization_id_37, 'String');
     }
 
-    $insertQuery = 'INSERT INTO civicrm_value_orgdata SET ' . implode(', ', $insertColumns);
+    $insertQuery = 'REPLACE INTO civicrm_value_orgdata SET ' . implode(', ', $insertColumns);
 
     CRM_Core_DAO::executeQuery($insertQuery, $insertParams);
     $updateQuery = 'UPDATE v6_value_kabissa SET is_processed = %1 WHERE id = %2';

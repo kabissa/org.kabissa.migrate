@@ -15,7 +15,8 @@ function civicrm_api3_migrate_email($params) {
   $returnValues = array();
   $countCreated = 0;
   $fieldsToBeMigrated = array('location_type_id', 'is_primary', 'email', 'on_hold', 'is_bulkmail');
-  $emailQuery = 'SELECT email.*, mk.entity, mk.original_id, mk.entity_id FROM v6_email email JOIN migrate_keys mk ON email.contact_id = mk.original_id
+  $emailQuery = 'SELECT email.*, mk.entity, mk.original_id, mk.entity_id FROM v6_email email
+JOIN migrate_keys mk ON email.contact_id = mk.original_id
     AND mk.entity in(%2, %3) WHERE is_process_migration = %1';
   $emailQueryParams = array(
     1 => array(0, 'Integer'),

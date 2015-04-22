@@ -23,14 +23,16 @@ function civicrm_api3_migrate_individuals($params) {
     $sourceOrgKey = CRM_Migrate_Utils::getMigrateKey(array(
       'entity' => 'Organization',
       'entity_id' => $daoOrg->id));
-    $relationQuery = 'SELECT is_active, contact_id_a FROM v6_relationship WHERE contact_id_b = %1 AND v6_relationship.relationship_type_id = %2';
-    $relationParams = array(
-      1 => array($sourceOrgKey, 'Integer'),
-      2 => array(4, 'Integer')
-    );
-    $daoRelation = CRM_Core_DAO::executeQuery($relationQuery, $relationParams);
-    while ($daoRelation->fetch()) {
-      _createIndividual($daoRelation, $daoOrg);
+    if (!empty($sourceOrgKey)) {
+      $relationQuery = 'SELECT is_active, contact_id_a FROM v6_relationship WHERE contact_id_b = %1 AND v6_relationship.relationship_type_id = %2';
+      $relationParams = array(
+        1 => array($sourceOrgKey['original_id'], 'Integer'),
+        2 => array(4, 'Integer')
+      );
+      $daoRelation = CRM_Core_DAO::executeQuery($relationQuery, $relationParams);
+      while ($daoRelation->fetch()) {
+        _createIndividual($daoRelation, $daoOrg);
+      }
     }
   }
   return civicrm_api3_create_success($returnValues, $params, 'Migrate', 'Individuals');
@@ -45,7 +47,7 @@ function civicrm_api3_migrate_individuals($params) {
 function _createIndividual($daoRelation, $daoOrg) {
   $fieldsToBeMigrated = array('nick_name', 'contact_type', 'first_name', 'middle_name', 'last_name', 'prefix_id',
     'email_greeting_id', 'email_greeting_display', 'postal_greeting_id', 'postal_greeting_display', 'addressee_id', 'addressee_display',
-    'job_title', 'gender_id', 'birth_date', 'preferred_language');
+    'job_title', 'gender_id', 'birth_date', 'preferred_language', 'sort_name', 'display_name');
   $indQuery = 'SELECT * FROM v6_contact WHERE id = %1 AND v6_contact.is_process_migration = %2';
   $indParams = array(
     1 => array($daoRelation->contact_id_a, 'Integer'),
@@ -58,22 +60,15 @@ function _createIndividual($daoRelation, $daoOrg) {
     }
     $newParams['employer_id'] =$daoOrg->id;
     $newParams['organization_name'] = $daoOrg->display_name;
-
-    $newInd = civicrm_api3('Contact', 'Create', $newParams);
-    CRM_Migrate_Utils::createMigrateKey($daoInd->id, 'Individual', $newInd['id']);
-
-    $relationParams = array(
-      'relationship_type_id' => 5,
-      'contact_id_a' => $newInd['id'],
-      'contact_id_b' => $daoOrg->id,
-      'is_active' => $daoRelation->is_active
-    );
-    civicrm_api3('Relationship', 'Create', $relationParams);
-
-    $updateQuery = 'UPDATE v6_contact SET is_process_migration = %1 WHERE id = %2';
-    $updateParams = array(
-      1 => array(1, 'Integer'),
-      2 => array($daoInd->id, 'Integer'));
-    CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+    try {
+      $newInd = civicrm_api3('Contact', 'Create', $newParams);
+      CRM_Migrate_Utils::createMigrateKey($daoInd->id, 'Individual', $newInd['id']);
+      $updateQuery = 'UPDATE v6_contact SET is_process_migration = %1 WHERE id = %2';
+      $updateParams = array(
+        1 => array(1, 'Integer'),
+        2 => array($daoInd->id, 'Integer'));
+      CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+    } catch (CiviCRM_API3_Exception $ex) {
+    }
   }
 }

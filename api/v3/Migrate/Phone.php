@@ -48,14 +48,17 @@ function _createPhone($daoPhone, $fieldsToBeMigrated, &$countCreated) {
       civicrm_api3('Phone', 'Getsingle', $newParams);
     } catch (CiviCRM_API3_Exception $ex) {
       if (!empty($newParams['phone'])) {
-        $newPhone = civicrm_api3('Phone', 'Create', $newParams);
-        $countCreated++;
-        CRM_Migrate_Utils::createMigrateKey($daoPhone->id, 'Phone', $newPhone['id']);
-        $updateQuery = 'UPDATE v6_phone SET is_process_migration = %1 WHERE id = %2';
-        $updateParams = array(
-          1 => array(1, 'Integer'),
-          2 => array($daoPhone->id, 'Integer'));
-        CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+        if (CRM_Migrate_Utils::checkContactExists($newParams['contact_id']) == TRUE) {
+
+          $newPhone = civicrm_api3('Phone', 'Create', $newParams);
+          $countCreated++;
+          CRM_Migrate_Utils::createMigrateKey($daoPhone->id, 'Phone', $newPhone['id']);
+          $updateQuery = 'UPDATE v6_phone SET is_process_migration = %1 WHERE id = %2';
+          $updateParams = array(
+            1 => array(1, 'Integer'),
+            2 => array($daoPhone->id, 'Integer'));
+          CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+        }
       }
     }
   }

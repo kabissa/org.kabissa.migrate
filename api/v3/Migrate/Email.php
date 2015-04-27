@@ -50,14 +50,16 @@ function _createEmail($daoEmail, $fieldsToBeMigrated, &$countCreated) {
     try {
       civicrm_api3('Email', 'Getsingle', $newParams);
     } catch (CiviCRM_API3_Exception $ex) {
-      $newEmail = civicrm_api3('Email', 'Create', $newParams);
-      $countCreated++;
-      CRM_Migrate_Utils::createMigrateKey($daoEmail->id, 'Email', $newEmail['id']);
-      $updateQuery = 'UPDATE v6_email SET is_process_migration = %1 WHERE id = %2';
-      $updateParams = array(
-        1 => array(1, 'Integer'),
-        2 => array($daoEmail->id, 'Integer'));
-      CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+      if (CRM_Migrate_Utils::checkContactExists($newParams['contact_id']) == TRUE) {
+        $newEmail = civicrm_api3('Email', 'Create', $newParams);
+        $countCreated++;
+        CRM_Migrate_Utils::createMigrateKey($daoEmail->id, 'Email', $newEmail['id']);
+        $updateQuery = 'UPDATE v6_email SET is_process_migration = %1 WHERE id = %2';
+        $updateParams = array(
+          1 => array(1, 'Integer'),
+          2 => array($daoEmail->id, 'Integer'));
+        CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+      }
     }
   }
 }

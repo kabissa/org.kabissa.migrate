@@ -35,7 +35,6 @@ function civicrm_api3_migrate_groupmembers($params) {
   $groupContactQuery = 'SELECT gc.*, cont.contact_type
     FROM v6_group_contact gc INNER JOIN v6_contact cont ON gc.contact_id = cont.id
     WHERE status = "Added" AND gc.is_process_migration = 0 AND gc.group_id IN('.implode(', ', $selectOldGroups).') LIMIT 2500';
-  CRM_Core_Error::debug('query', $groupContactQuery);
 
   $daoGroupContact = CRM_Core_DAO::executeQuery($groupContactQuery);
   while ($daoGroupContact->fetch()) {

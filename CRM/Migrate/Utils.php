@@ -89,4 +89,21 @@ class CRM_Migrate_Utils {
     }
     return FALSE;
   }
+
+  /**
+   * Simple check to see if contact exists before we add email, address, phone etc.
+   *
+   * @param int $contactId
+   * @return bool
+   * @access public
+   * @static
+   */
+  public static function checkContactExists($contactId) {
+    try {
+      $checkContact = civicrm_api3('Contact' ,'Getsingle', array('id' => $contactId));
+      return TRUE;
+    } catch (CiviCRM_API3_Exception $ex) {
+      return FALSE;
+    }
+  }
 }

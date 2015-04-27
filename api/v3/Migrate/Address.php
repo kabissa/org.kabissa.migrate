@@ -51,14 +51,20 @@ function _createAddress($daoAddress, $fieldsToBeMigrated, &$countCreate) {
     try {
       civicrm_api3('Address', 'Getsingle', $newParams);
     } catch (CiviCRM_API3_Exception $ex) {
-      $newAddress = civicrm_api3('Address', 'Create', $newParams);
-      $countCreate++;
-      CRM_Migrate_Utils::createMigrateKey($daoAddress->id, 'Address', $newAddress['id']);
-      $updateQuery = 'UPDATE v6_address SET is_process_migration = %1 WHERE id = %2';
-      $updateParams = array(
-        1 => array(1, 'Integer'),
-        2 => array($daoAddress->id, 'Integer'));
-      CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+      if (CRM_Migrate_Utils::checkContactExists($newParams['contact_id']) == TRUE) {
+        try {
+          $newAddress = civicrm_api3('Address', 'Create', $newParams);
+          $countCreate++;
+          CRM_Migrate_Utils::createMigrateKey($daoAddress->id, 'Address', $newAddress['id']);
+          $updateQuery = 'UPDATE v6_address SET is_process_migration = %1 WHERE id = %2';
+          $updateParams = array(
+            1 => array(1, 'Integer'),
+            2 => array($daoAddress->id, 'Integer'));
+          CRM_Core_DAO::executeQuery($updateQuery, $updateParams);
+        } catch (CiviCRM_API3_Exception $ex) {
+
+        }
+      }
     }
   }
 }

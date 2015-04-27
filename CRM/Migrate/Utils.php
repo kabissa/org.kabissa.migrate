@@ -38,6 +38,7 @@ class CRM_Migrate_Utils {
    * @access public
    */
   public static function getMigrateKey($params) {
+    $selectParams = array();
     if (!isset($params['entity'])) {
       throw new Exception('Entity is mandatory');
     }
@@ -51,7 +52,7 @@ class CRM_Migrate_Utils {
     $selectParams[1] = array($params['entity'], 'String');
     if (isset($params['entity_id'])) {
       $whereClauses[] = 'entity_id = %2';
-      $selectParams[2] = array($params['entity_id'], 'Integer');
+      $selectParams[2] = array($params['entity_id'], 'String');
     }
     if (isset($params['original_id'])) {
       $whereClauses[] = 'original_id = %3';

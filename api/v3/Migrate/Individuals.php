@@ -60,6 +60,14 @@ function _createIndividual($daoRelation, $daoOrg) {
     }
     $newParams['employer_id'] =$daoOrg->id;
     $newParams['organization_name'] = $daoOrg->display_name;
+
+    /*
+     * fix for api validation on addressee_id 3, correct afterwards in the database?
+     */
+    if ($newParams['addressee_id'] == 3) {
+      $newParams['addressee_id'] = 1;
+    }
+
     try {
       $newInd = civicrm_api3('Contact', 'Create', $newParams);
       CRM_Migrate_Utils::createMigrateKey($daoInd->id, 'Individual', $newInd['id']);

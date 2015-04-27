@@ -2,7 +2,7 @@
 set_time_limit(0);
 
 /**
- * Migrate.Individuals API (first for relationships with organizations, later for groups)
+ * Migrate.Individuals API
  *
  * First step: get all organizations, retrieve their original key and check if there are any relations
  * for them in v6_relationship (old ones). If so, create Individual for those contacts
